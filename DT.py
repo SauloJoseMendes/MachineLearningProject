@@ -64,7 +64,7 @@ if __name__ == "__main__":
         
     rows = [SEs, SPs]
 
-    with open("results/DT_COVID_numerics.csv", mode='w', newline='') as file:
+    with open("results/DT/DT_COVID_numerics.csv", mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerows(rows)
 

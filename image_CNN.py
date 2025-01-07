@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
         SE_list = []
         SP_list = []
-        file_name = file_names[param]
+        file_name = "results/" + file_names[param]
         
         #test for multiple epochs
         for epochs in range(25,275,25):

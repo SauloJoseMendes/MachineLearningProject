@@ -1,16 +1,12 @@
 from sklearn.model_selection import train_test_split
-import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
-# Load dataset
-data = pd.read_csv("COVID_numerics.csv")
+from Data import Data
 
-# Separate features and target
-X = data.drop(columns=["TARGET"])
-y = data["TARGET"]
+dataset = Data()
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(dataset.X_not_normalized, dataset.Y, test_size=0.2, random_state=42)
 
 # Initialize the model
 model = RandomForestClassifier(random_state=42)

@@ -12,3 +12,6 @@ class Data:
     def get_data(self):
         numeric_data = pd.read_csv("COVID_numerics.csv")
         return numeric_data
+    def drop_feature(self, feature_to_remove):
+        self.X_not_normalized = self.X_not_normalized.drop(columns=[feature_to_remove])
+        self.X = StandardScaler().fit_transform(self.X_not_normalized)

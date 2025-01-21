@@ -32,10 +32,10 @@ print("\nLeast important features:")
 print(least_important_features)
 
 feature = "HEART RATE"
-correlation_matrix = dataset.data.corr()
+correlation_matrix = dataset.numeric_data.corr()
 print("\n\nCORRELATIONS FOR FEATURE " + str(feature))
 print(correlation_matrix[feature].sort_values(ascending=False))
 
-gender_vs_target = pd.crosstab(dataset.data[feature], dataset.data['TARGET'])
+gender_vs_target = pd.crosstab(dataset.numeric_data[feature], dataset.numeric_data['TARGET'])
 chi2, p, dof, expected = chi2_contingency(gender_vs_target)
 print("\n\np-value:", p)

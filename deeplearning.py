@@ -1,59 +1,16 @@
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
-from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import precision_score, recall_score
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Flatten, Concatenate, Dropout, Conv2D, MaxPooling2D
 from sklearn.model_selection import train_test_split
 import numpy as np
-import pandas as pd
+from Data import Data
 import matplotlib.pyplot as plt
 
-print("GPUs available:", tf.config.list_physical_devices('GPU'))
-
-# Read and preprocess the numeric dataset
-numeric_data = pd.read_csv("COVID_numerics.csv")
-
-# Verify the 'TARGET' column values before mapping
-print("Value counts for TARGET column before mapping:")
-print(numeric_data["TARGET"].value_counts())
-
-# Check the data type of the target column
-print("Data type of the TARGET column:", numeric_data['TARGET'].dtype)
-
-# Map the target values directly to integers
-y = numeric_data["TARGET"].map({0.0: 0, 1.0: 1}).values
-
-# Print the unique target values and the number of NaN values before the split
-print("Unique Values in y before split:", np.unique(y, return_counts=True))
-print("NaN Values in y before split:", np.isnan(y).sum())
-
-# Remove rows with NaN values from the dataset
-nan_mask = np.isnan(y)
-if np.any(nan_mask):
-    print(f"Found {nan_mask.sum()} NaN values in y. Removing rows with NaN values...")
-    X_numeric = numeric_data.iloc[~nan_mask, :-1].values
-    y = y[~nan_mask]
-else:
-    X_numeric = numeric_data.iloc[:, :-1].values
-    print("No NaN values found in y, continuing...")
-
-# Verify the unique target values and the number of NaN values after the cleaning
-print("Unique values in y after cleaning:", np.unique(y, return_counts=True))
-print("Number of NaN values in y after cleaning:", np.isnan(y).sum())
-
-# Standardize numeric features
-scaler = StandardScaler()
-X_numeric = scaler.fit_transform(X_numeric)  # Apply standard scaling to the numeric features
-
-# Check the result after scaling
-print("Mean of scaled X_numeric (before split):", np.mean(X_numeric, axis=0))
-print("Std of scaled X_numeric (before split):", np.std(X_numeric, axis=0))
-
-# Check for NaN or inffinite values
-print("NaN in X_numeric:", np.isnan(X_numeric).sum())
-print("Inf in X_numeric:", np.isinf(X_numeric).sum())
-
 # Read and preprocess the image dataset
+data = Data()
+# data.drop_feature(["MARITAL STATUS"])
 image_data = np.loadtxt("COVID_IMG.csv", delimiter=',')
 X_images = image_data.reshape(-1, 21, 21, 1)  # Reshape to (samples, 21, 21, 1)
 
@@ -62,7 +19,7 @@ print("Inf in X_images:", np.isinf(X_images).sum())
 
 # Split data into training and testing sets
 X_numeric_train, X_numeric_test, X_images_train, X_images_test, y_train, y_test = train_test_split(
-    X_numeric, X_images, y, test_size=0.2, random_state=42
+    data.X, X_images, data.Y, test_size=0.2, random_state=42
 )
 
 print("X_numeric_train shape:", X_numeric_train.shape)
@@ -82,7 +39,7 @@ plt.show()
 
 # --- Simplified Model ---
 # Define the numeric model
-numeric_input = Input(shape=(X_numeric.shape[1],), name="Numeric_Input")
+numeric_input = Input(shape=(data.X.shape[1],), name="Numeric_Input")
 
 
 # Define the image model (flatten before a single dense layer)
@@ -123,8 +80,17 @@ with tf.device('/CPU:0'):
 
     # Evaluate the model
     test_loss, test_accuracy = model.evaluate([X_numeric_test, X_images_test], y_test)
-    print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
 
+    # Get predictions
+    y_pred_probs = model.predict([X_numeric_test, X_images_test])  # Predict probabilities
+    y_pred = (y_pred_probs > 0.5).astype(int)  # Convert probabilities to binary predictions
+
+    # Calculate precision and recall
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
+    print(f"Precision: {precision * 100:.2f}%")
+    print(f"Recall: {recall * 100:.2f}%")
 # Plot training history
 plt.figure(figsize=(12, 4))
 plt.subplot(1, 2, 1)

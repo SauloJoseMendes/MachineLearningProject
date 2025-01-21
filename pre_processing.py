@@ -1,4 +1,5 @@
 import pandas as pd
+from scipy.stats import chi2_contingency
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -37,3 +38,12 @@ print(feature_importance)
 least_important_features = feature_importance.abs().sum(axis=1).sort_values()
 print("\nLeast important features:")
 print(least_important_features)
+
+feature = "HEART RATE"
+correlation_matrix = numeric_data.corr()
+print("\n\nCORRELATIONS FOR FEATURE " + str(feature))
+print(correlation_matrix[feature].sort_values(ascending=False))
+
+gender_vs_target = pd.crosstab(numeric_data[feature], numeric_data['TARGET'])
+chi2, p, dof, expected = chi2_contingency(gender_vs_target)
+print("\n\np-value:", p)

@@ -8,9 +8,8 @@ from sklearn.metrics import confusion_matrix
 from optuna.visualization import plot_optimization_history, plot_slice
 from Data import Data
 
-dataset = Data()
-X_train = dataset.X
-T_train = dataset.Y
+
+
 
 def read_data(file_name):
     df = pd.read_csv(file_name, header=None, skiprows=1)
@@ -70,8 +69,9 @@ def objective(trial, X, T):
     score = cross_val_score(model, X, T, cv=5, scoring='accuracy').mean()
     return score
 
-
 # Load data
+dataset = Data()
+dataset.drop_feature(["MARITAL STATUS"])
 X, T = dataset.X, dataset.Y  # Use your `dataset` object
 
 # Optimize using Optuna

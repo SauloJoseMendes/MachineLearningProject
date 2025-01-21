@@ -27,6 +27,16 @@ def train_neural_network(layer_config=(100,)):
     #print("SP:" + str(SP))
 
     return SE, SP
+def find_optimal_hyperparameters():
+    # Optimize using Optuna
+    study = optuna.create_study(direction='maximize')
+    study.optimize(lambda trial: objective(trial, X, T), n_trials=50)
+
+    # Print the best parameters and their score
+    print("Best Parameters:", study.best_params)
+    print("Best Score:", study.best_value)
+    plot_optimization_history(study).show()
+    plot_slice(study).show()
 
 def objective(trial, X, T):
     # Suggest number of hidden layers (1 to 3 layers)
@@ -52,16 +62,9 @@ def objective(trial, X, T):
     return score  # We aim to maximize accuracy
 
 # Load data
-dataset = Data()
+dataset = Data(image_feature_path="feature_vectors.csv")
 dataset.drop_feature(["MARITAL STATUS"])
 X, T = dataset.X, dataset.Y  # Use your `dataset` object
+find_optimal_hyperparameters()
+print(X.shape)
 
-# Optimize using Optuna
-study = optuna.create_study(direction='maximize')
-study.optimize(lambda trial: objective(trial, X, T), n_trials=50)
-
-# Print the best parameters and their score
-print("Best Parameters:", study.best_params)
-print("Best Score:", study.best_value)
-plot_optimization_history(study).show()
-plot_slice(study).show()

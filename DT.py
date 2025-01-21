@@ -70,7 +70,7 @@ def objective(trial, X, T):
     return score
 
 # Load data
-dataset = Data()
+dataset = Data(image_feature_path="feature_vectors.csv")
 dataset.drop_feature(["MARITAL STATUS"])
 X, T = dataset.X, dataset.Y  # Use your `dataset` object
 

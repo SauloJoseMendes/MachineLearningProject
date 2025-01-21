@@ -58,12 +58,13 @@ def save_feature_vectors_to_csv(feature_vectors, output_file):
     feature_vectors_df = pd.DataFrame(feature_vectors)
     # Remove columns where all values are 0.0
     feature_vectors_df = feature_vectors_df.loc[:, (feature_vectors_df != 0).any(axis=0)]
+    print(feature_vectors_df.shape)
     # Save DataFrame to a .csv file
     feature_vectors_df.to_csv(output_file, index=False)
     print(f"Feature vectors saved to {output_file}")
 
 def create_model(X,T):
-    model = build_CNN_model(n_filters_1=64, n_filters_2=16, pool_size_1=(4,4), pool_size_2=(2,2))
+    model = build_CNN_model(n_filters_1=112, n_filters_2=48, pool_size_1=(2,2), pool_size_2=(2,2))
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     scores = []
     for train_index, val_index in skf.split(X, T):
@@ -89,4 +90,5 @@ with tf.device('/CPU:0'):
     dataset = Data(image_dataset_path="COVID_IMG.csv")
     X, T = dataset.images, dataset.Y  # Use your `dataset` object
     create_model(X,T)
+
     

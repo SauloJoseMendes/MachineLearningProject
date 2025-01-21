@@ -13,7 +13,6 @@ def create_model(trial):
     num_units_1 = trial.suggest_int('num_units_1', 32, 128, step=32)
     num_units_2 = trial.suggest_int('num_units_2', 16, 64, step=16)
     dropout_rate = trial.suggest_float('dropout_rate', 0.1, 0.5)
-    learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
     activation_name = trial.suggest_categorical('activation', ['relu', 'leakyrelu'])
 
     # Define input layer
@@ -53,7 +52,7 @@ def objective(trial, X, T):
     scores = []
 
     for train_index, val_index in skf.split(X, T):
-        X_train, X_val = X[train_index], X[val_index]
+        X_train, X_val = X.iloc[train_index], X.iloc[val_index]
         T_train, T_val = T[train_index], T[val_index]
 
         # Train the model
@@ -67,7 +66,8 @@ def objective(trial, X, T):
     return np.mean(scores)
 
 with tf.device('/CPU:0'):
-    dataset = Data()
+    dataset = Data(image_feature_path="feature_vectors.csv")
+    dataset.drop_feature(["MARITAL STATUS"])
     # Load data
     X, T = dataset.X, dataset.Y  # Use your `dataset` object
 
@@ -80,3 +80,4 @@ with tf.device('/CPU:0'):
     print("Best Score:", study.best_value)
     plot_optimization_history(study).show()
     plot_slice(study).show()
+    print(X.shape)

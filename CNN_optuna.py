@@ -35,9 +35,9 @@ def build_CNN_model(n_filters_1=64, n_filters_2=32, pool_size_1=(2,2), pool_size
 
     return model
 
-def objective(trial):
-    n_filters_1 = trial.suggest_int('n_filters_1', 32, 64, step=32)
-    n_filters_2 = trial.suggest_int('n_filters_2', 16, 32, step=16)
+def objective(trial):  
+    n_filters_1 = trial.suggest_int('n_filters_1', 32, 128, step=32)
+    n_filters_2 = trial.suggest_int('n_filters_2', 16, 64, step=16)
 
     # Dynamically suggest pooling layer sizes
     pool_size_1 = tuple(trial.suggest_int(f'pool_size1{i}', 2, 4, step=2) for i in range(2))

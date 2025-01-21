@@ -11,7 +11,7 @@ class Data:
         self.Y = self.numeric_data['TARGET']
         if image_dataset_path is not None:
             self.images = self.get_images()
-            self.img_features = self.get_image_features()
+            self.img_features =  StandardScaler().fit_transform(self.get_image_features())
             self.X = pd.concat([self.X, self.img_features], axis=1)
 
     def get_image_features(self):

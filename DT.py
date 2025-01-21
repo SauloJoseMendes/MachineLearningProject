@@ -21,13 +21,13 @@ def plot_decision_tree(dt):
     plt.show()
 
 
-def train_decision_tree(X, T, leaf_nodes):
+def train_decision_tree(X, T, leaf_nodes, max_depth):
 
     # Split data into training and test sets
     X_train, X_test, T_train, T_test = train_test_split(X, T, test_size=0.3, random_state=42)
 
     # Create decision tree classifier with 'entropy' criterion for ID3-like behavior
-    dt = DecisionTreeClassifier(criterion='entropy', splitter='best', max_depth=5, min_samples_split=4, min_samples_leaf=2, max_features=None, random_state=42, max_leaf_nodes=leaf_nodes)
+    dt = DecisionTreeClassifier(criterion='entropy', splitter='best', max_depth=max_depth, min_samples_split=4, min_samples_leaf=2, max_features=None, random_state=42, max_leaf_nodes=leaf_nodes)
     
     #train decision tree using training set
     dt.fit(X_train, T_train)
@@ -38,14 +38,17 @@ def train_decision_tree(X, T, leaf_nodes):
     TN, FP, FN, TP = cm.ravel()
     SE = TP/(TP+FN)
     SP = TN/(TN+FP)
+    accuracy = (TP + TN) / (TP + TN + FP + FN)
 
-    print("Results for trained model:")
+    print("Results for trained model with maximum depth of:", max_depth, "and max leaf nodes:", leaf_nodes )
     print("Se:" + str(SE))
     print("SP:" + str(SP))
+    print("Accuracy:" + str(accuracy))
+
 
     #plot_decision_tree(dt)
 
-    return SE, SP
+    return SE, SP, accuracy
 
 
 if __name__ == "__main__":
@@ -53,16 +56,18 @@ if __name__ == "__main__":
 
     SEs = []
     SPs = []
+    accuracies = []
 
 
     #test decision tree for different leaf nodes
     for leaf_nodes in range(6,13):
+        for max_depth in range(2,6):
+            SE, SP, accuracy = train_decision_tree(X,T,leaf_nodes, max_depth)
+            SEs.append(SE)
+            SPs.append(SP)
+            accuracies.append(accuracy)
         
-        SE, SP = train_decision_tree(X,T,leaf_nodes)
-        SEs.append(SE)
-        SPs.append(SP)
-        
-    rows = [SEs, SPs]
+    rows = [SEs, SPs, accuracies]
 
     with open("results/DT/DT_COVID_numerics.csv", mode='w', newline='') as file:
             writer = csv.writer(file)

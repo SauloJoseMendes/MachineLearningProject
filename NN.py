@@ -51,8 +51,9 @@ def objective(trial, X, T):
     score = cross_val_score(mlp, X, T, cv=5, scoring='accuracy').mean()
     return score  # We aim to maximize accuracy
 
-dataset = Data()
 # Load data
+dataset = Data()
+dataset.drop_feature(["MARITAL STATUS"])
 X, T = dataset.X, dataset.Y  # Use your `dataset` object
 
 # Optimize using Optuna

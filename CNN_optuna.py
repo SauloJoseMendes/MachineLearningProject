@@ -4,7 +4,6 @@ import tensorflow as tf
 from sklearn.model_selection import StratifiedKFold
 from optuna.visualization import plot_optimization_history, plot_slice
 import numpy as np
-import pandas as pd
 
 def build_CNN_model(n_filters_1=64, n_filters_2=32, pool_size_1=(2,2), pool_size_2=(2,2)):
         
@@ -36,36 +35,20 @@ def build_CNN_model(n_filters_1=64, n_filters_2=32, pool_size_1=(2,2), pool_size
 
     return model
 
-# create new model equivalent to our trained model, but without the dense layers
-def create_feature_extractor(model):
-    # Create a new model up to the flatten layer (we remove the output layer)
-    feature_extractor = tf.keras.models.Model(inputs=model.inputs, outputs=model.layers[-4].output)  # assuming the flatten layer is the 3rd-to-last layer
-    return feature_extractor
+def objective(trial):
+    n_filters_1 = trial.suggest_int('n_filters_1', 32, 64, step=32)
+    n_filters_2 = trial.suggest_int('n_filters_2', 16, 32, step=16)
 
-#extract feature vectors 
-def extract_feature_vectors(model, data):
-    # Use the feature extractor model to get feature vectors for the entire dataset
-    feature_extractor = create_feature_extractor(model)
-    
-    # Get the feature vectors for all instances in the dataset
-    feature_vectors = feature_extractor.predict(data)
-    
-    return feature_vectors
+    # Dynamically suggest pooling layer sizes
+    pool_size_1 = tuple(trial.suggest_int(f'pool_size1{i}', 2, 4, step=2) for i in range(2))
+    pool_size_2 = (2,2)
 
-# Save feature vectors into a .csv file
-def save_feature_vectors_to_csv(feature_vectors, output_file):
-    # Convert feature vectors to a DataFrame
-    feature_vectors_df = pd.DataFrame(feature_vectors)
-    # Remove columns where all values are 0.0
-    feature_vectors_df = feature_vectors_df.loc[:, (feature_vectors_df != 0).any(axis=0)]
-    # Save DataFrame to a .csv file
-    feature_vectors_df.to_csv(output_file, index=False)
-    print(f"Feature vectors saved to {output_file}")
+    # Build the CNN model with suggested parameters
+    model = build_CNN_model(n_filters_1, n_filters_2, pool_size_1, pool_size_2)
 
-def create_model(X,T):
-    model = build_CNN_model(n_filters_1=64, n_filters_2=16, pool_size_1=(4,4), pool_size_2=(2,2))
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     scores = []
+
     for train_index, val_index in skf.split(X, T):
         X_train, X_val = X[train_index], X[val_index]
         T_train, T_val = T[train_index], T[val_index]
@@ -73,20 +56,33 @@ def create_model(X,T):
         # Train the model
         model.fit(X_train, T_train, epochs=10, batch_size=32, verbose=0)
 
-        # Evaluate on the validation setcl
+        # Evaluate on the validation set
         loss, accuracy = model.evaluate(X_val, T_val, verbose=0)
         scores.append(accuracy)
 
     # Return the mean accuracy across folds
-    print(np.mean(scores))
-    vectors = extract_feature_vectors(model, X)
-    # Specify the output file path
-    output_file = "feature_vectors.csv"
-    # Save the feature vectors to the CSV
-    save_feature_vectors_to_csv(vectors, output_file)
+    return np.mean(scores)
+
+
+def find_optimal_hyperparameters():
+    dataset = Data(image_dataset_path="COVID_IMG.csv")
+    # Load data
+    X, T = dataset.images, dataset.Y  # Use your `dataset` object
+
+    # Optimize using Optuna
+    study = optuna.create_study(direction='maximize')
+    study.optimize(lambda trial: objective(trial), n_trials=50)
+
+    # Print the best parameters and their score
+    print("Best Parameters:", study.best_params)
+    print("Best Score:", study.best_value)
+    plot_optimization_history(study).show()
+    plot_slice(study).show()
+
+
 
 with tf.device('/CPU:0'):
     dataset = Data(image_dataset_path="COVID_IMG.csv")
     X, T = dataset.images, dataset.Y  # Use your `dataset` object
-    create_model(X,T)
+    find_optimal_hyperparameters()
     

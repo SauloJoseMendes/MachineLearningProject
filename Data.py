@@ -11,7 +11,12 @@ class Data:
         self.Y = self.numeric_data['TARGET']
         if image_dataset_path is not None:
             self.images = self.get_images()
+            self.img_features = self.get_image_features()
+            self.X = pd.concat([self.X, self.img_features], axis=1)
 
+    def get_image_features(self):
+        features = pd.read_csv("feature_vectors.csv")
+        return features
 
     def get_numeric_data(self):
         numeric_data = pd.read_csv("COVID_numerics.csv")

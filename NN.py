@@ -1,17 +1,11 @@
+import optuna
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
-import pandas as pd
-from sklearn.metrics import confusion_matrix
-import csv
-
-#read data
-def read_data(file_name):
-    df = pd.read_csv(file_name, header=None, skiprows=1)
-    df = (df - df.min()) / (df.max() - df.min()) #normalize data
-    X = df.iloc[:, :-1].to_numpy()
-    T = df.iloc[:, -1].to_numpy()
-    
-    return X, T
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import make_classification
+from Data import Data
+from optuna.visualization import plot_optimization_history, plot_slice
 
 #create multilayer neural network, train and test it
 def train_neural_network(layer_config=(100,)):
@@ -34,38 +28,39 @@ def train_neural_network(layer_config=(100,)):
 
     return SE, SP
 
+def objective(trial, X, T):
+    # Suggest number of hidden layers (1 to 3 layers)
+    n_layers = trial.suggest_int('n_layers', 1, 3)
 
-if __name__ == "__main__":
-    X, T = read_data("COVID_numerics.csv")
+    # Suggest units per layer separately and create a tuple dynamically
+    layer_config = tuple(
+        trial.suggest_int(f'n_units_l{i}', 1, 4, step=1) for i in range(n_layers)
+    )
 
-    configs=[(4,2),(8,4),(16,8),(32,16),(64,32),(128,64)]
-    exps = 10
+    # Suggest the activation function
+    activation = trial.suggest_categorical('activation', ['relu', 'tanh', 'logistic'])
 
-    SEs = []
-    SPs = []
+    # Define MLP Classifier with suggested parameters
+    mlp = MLPClassifier(hidden_layer_sizes=layer_config, 
+                        activation=activation, 
+                        solver='adam', 
+                        max_iter=500, 
+                        random_state=42)
 
-    for config in configs:
+    # Evaluate using cross-validation
+    score = cross_val_score(mlp, X, T, cv=5, scoring='accuracy').mean()
+    return score  # We aim to maximize accuracy
 
-        SE_sum=0
-        SP_sum=0
+dataset = Data()
+# Load data
+X, T = dataset.X, dataset.Y  # Use your `dataset` object
 
-        for i in range(0,exps):
-            SE, SP = train_neural_network(layer_config=config)
+# Optimize using Optuna
+study = optuna.create_study(direction='maximize')
+study.optimize(lambda trial: objective(trial, X, T), n_trials=50)
 
-            SE_sum = SE_sum + SE
-            SP_sum = SP_sum + SP
-
-        SE_average = SE_sum / exps
-        SP_average = SP_sum / exps
-
-        SEs.append(SE_average)
-        SPs.append(SP_average)
-
-    rows = [SEs, SPs]
-
-    with open("results/NN/NN_COVID_numerics.csv", mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
-
-
-
+# Print the best parameters and their score
+print("Best Parameters:", study.best_params)
+print("Best Score:", study.best_value)
+plot_optimization_history(study).show()
+plot_slice(study).show()

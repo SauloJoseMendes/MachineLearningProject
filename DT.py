@@ -6,7 +6,6 @@ from sklearn.tree import plot_tree
 import optuna
 from sklearn.metrics import confusion_matrix
 from optuna.visualization import plot_optimization_history, plot_slice
-
 from Data import Data
 
 dataset = Data()
@@ -82,6 +81,7 @@ study.optimize(lambda trial: objective(trial, X, T), n_trials=50)
 # Print the best parameters and their score
 print("Best Parameters:", study.best_params)
 print("Best Score:", study.best_value)
-plot_optimization_history(study)
-plot_slice(study)
+plot_optimization_history(study).show()
+plot_slice(study).show()
+
 # metrics = train_decision_tree(X, T, 11, 8, 10)

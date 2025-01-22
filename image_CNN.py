@@ -1,8 +1,6 @@
-import optuna
-from Data import Data
+from Classes.DataReader import DataReader
 import tensorflow as tf
 from sklearn.model_selection import StratifiedKFold
-from optuna.visualization import plot_optimization_history, plot_slice
 import numpy as np
 import pandas as pd
 
@@ -82,12 +80,12 @@ def create_model(X,T):
     print(np.mean(scores))
     vectors = extract_feature_vectors(model, X)
     # Specify the output file path
-    output_file = "feature_vectors.csv"
+    output_file = "data/feature_vectors.csv"
     # Save the feature vectors to the CSV
     save_feature_vectors_to_csv(vectors, output_file)
 
 with tf.device('/CPU:0'):
-    dataset = Data(image_dataset_path="COVID_IMG.csv")
+    dataset = DataReader(image_dataset_path="data/COVID_IMG.csv")
     X, T = dataset.images, dataset.Y  # Use your `dataset` object
     create_model(X,T)
 

@@ -3,8 +3,8 @@ import tensorflow as tf
 from tensorflow.keras.optimizers.legacy import Adam
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, LeakyReLU, Dropout, ReLU
-from Data import Data
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from Classes.DataReader import DataReader
+from sklearn.model_selection import StratifiedKFold
 from optuna.visualization import plot_optimization_history, plot_slice
 import numpy as np
 
@@ -66,7 +66,7 @@ def objective(trial, X, T):
     return np.mean(scores)
 
 with tf.device('/CPU:0'):
-    dataset = Data(image_feature_path="feature_vectors.csv")
+    dataset = DataReader(image_feature_path="data/feature_vectors.csv")
     dataset.drop_feature(["MARITAL STATUS"])
     # Load data
     X, T = dataset.X, dataset.Y  # Use your `dataset` object

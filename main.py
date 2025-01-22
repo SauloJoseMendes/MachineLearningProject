@@ -3,11 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Read the numeric dataset
-numeric_data = pd.read_csv("COVID_numerics.csv")
+numeric_data = pd.read_csv("data/COVID_numerics.csv")
 print(numeric_data.shape)
 
 # Read the image dataset
-image_data = np.loadtxt("COVID_IMG.csv", delimiter=',')
+image_data = np.loadtxt("data/COVID_IMG.csv", delimiter=',')
 
 # Reshape each row into a 21x21 matrix if needed
 image_matrices = image_data.reshape(-1, 21, 21)

@@ -1,10 +1,9 @@
 import pandas as pd
 from scipy.stats import chi2_contingency
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from Data import Data
+from Classes.DataReader import DataReader
 # Load the dataset
-dataset = Data()
+dataset = DataReader()
 
 # Apply PCA
 pca = PCA()

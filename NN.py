@@ -1,10 +1,7 @@
 import optuna
 from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import accuracy_score
-from sklearn.datasets import make_classification
-from Data import Data
+from Classes.DataReader import DataReader
 from optuna.visualization import plot_optimization_history, plot_slice
 
 #create multilayer neural network, train and test it
@@ -62,7 +59,7 @@ def objective(trial, X, T):
     return score  # We aim to maximize accuracy
 
 # Load data
-dataset = Data(image_feature_path="feature_vectors.csv")
+dataset = DataReader(image_feature_path="data/feature_vectors.csv")
 dataset.drop_feature(["MARITAL STATUS"])
 X, T = dataset.X, dataset.Y  # Use your `dataset` object
 find_optimal_hyperparameters()

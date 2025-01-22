@@ -1,5 +1,5 @@
 import optuna
-from Data import Data
+from Classes.DataReader import DataReader
 import tensorflow as tf
 from sklearn.model_selection import StratifiedKFold
 from optuna.visualization import plot_optimization_history, plot_slice
@@ -65,7 +65,7 @@ def objective(trial):
 
 
 def find_optimal_hyperparameters():
-    dataset = Data(image_dataset_path="COVID_IMG.csv")
+    dataset = DataReader(image_dataset_path="data/COVID_IMG.csv")
     # Load data
     X, T = dataset.images, dataset.Y  # Use your `dataset` object
 
@@ -82,7 +82,7 @@ def find_optimal_hyperparameters():
 
 
 with tf.device('/CPU:0'):
-    dataset = Data(image_dataset_path="COVID_IMG.csv")
+    dataset = DataReader(image_dataset_path="data/COVID_IMG.csv", path="data/COVID_numerics.csv")
     X, T = dataset.images, dataset.Y  # Use your `dataset` object
     find_optimal_hyperparameters()
     

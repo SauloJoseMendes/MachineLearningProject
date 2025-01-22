@@ -6,7 +6,7 @@ from sklearn.tree import plot_tree
 import optuna
 from sklearn.metrics import confusion_matrix
 from optuna.visualization import plot_optimization_history, plot_slice
-from Data import Data
+from Classes.DataReader import DataReader
 
 
 
@@ -70,7 +70,7 @@ def objective(trial, X, T):
     return score
 
 # Load data
-dataset = Data(image_feature_path="feature_vectors.csv")
+dataset = DataReader(image_feature_path="data/feature_vectors.csv")
 dataset.drop_feature(["MARITAL STATUS"])
 X, T = dataset.X, dataset.Y  # Use your `dataset` object
 

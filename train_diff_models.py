@@ -1,9 +1,9 @@
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
-from Data import Data
+from Classes.DataReader import DataReader
 
-dataset = Data()
+dataset = DataReader()
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(dataset.X_not_normalized, dataset.Y, test_size=0.2, random_state=42)

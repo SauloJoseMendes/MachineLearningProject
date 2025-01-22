@@ -5,7 +5,7 @@ from Classes.DataReader import DataReader
 
 
 class ConvolutionalNeuralNetwork:
-    def __init__(self, n_filters_1=64, n_filters_2=32, pool_size_1=(2, 2), pool_size_2=(2, 2)):
+    def __init__(self, n_filters_1=64, n_filters_2=16, pool_size_1=(2, 2), pool_size_2=(2, 2)):
         """
         Initialize the CNN model with the specified parameters.
 
@@ -86,7 +86,8 @@ class ConvolutionalNeuralNetwork:
 
 if __name__ == '__main__':
     model = ConvolutionalNeuralNetwork()
-    dataset = DataReader(image_dataset_path="../../data/COVID_IMG.csv")
+    dataset = DataReader(path = "../../data/COVID_numerics.csv",image_dataset_path="../../data/COVID_IMG.csv")
     dataset.drop_feature(["MARITAL STATUS"])
     X, T = dataset.images, dataset.Y
+    model.model.fit(X, T, epochs=10, batch_size=32, validation_split=0.2)
     model.extract_feature_vectors(X, "../../data/feature_vectors.csv")

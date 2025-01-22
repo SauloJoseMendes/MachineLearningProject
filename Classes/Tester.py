@@ -3,7 +3,7 @@ import optuna
 import tensorflow as tf
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from optuna.visualization import plot_optimization_history, plot_slice
-from Classes.models.DecisitonTree import DecisionTree
+from Classes.models.DecisionTree import DecisionTree
 from Classes.models.DeepLearning import DeepLearning
 from Classes.models.NeuralNetwork import NeuralNetowrk
 from Classes.DataReader import DataReader
@@ -11,7 +11,7 @@ from Classes.models.ConvolutionalNeuralNetwork import ConvolutionalNeuralNetwork
 
 
 class Tester:
-    def __init__(self, x, t, model_type, n_trials=15):
+    def __init__(self, x, t, model_type, n_trials=50):
         self.X = x
         self.T = t
         self.model_type = model_type
@@ -121,7 +121,7 @@ class Tester:
 
 
 if __name__ == "__main__":
-    data_type = "img_feature"
+    data_type = "."
     if data_type == "img_feature":
         dataset = DataReader(image_feature_path="../data/feature_vectors.csv")
         dataset.drop_feature(["MARITAL STATUS"])
@@ -137,3 +137,4 @@ if __name__ == "__main__":
 
     tester = Tester(X, T, "dl")
     tester.print_info()
+    tester.plot()

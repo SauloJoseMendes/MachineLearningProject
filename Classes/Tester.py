@@ -1,13 +1,13 @@
 import numpy as np
 import optuna
 import tensorflow as tf
-from sklearn.model_selection import cross_val_score, StratifiedKFold
 from optuna.visualization import plot_optimization_history, plot_slice
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+
+from Classes.models.ConvolutionalNeuralNetwork import ConvolutionalNeuralNetwork
 from Classes.models.DecisionTree import DecisionTree
 from Classes.models.DeepLearning import DeepLearning
 from Classes.models.NeuralNetwork import NeuralNetowrk
-from Classes.DataReader import DataReader
-from Classes.models.ConvolutionalNeuralNetwork import ConvolutionalNeuralNetwork
 
 
 class Tester:
@@ -93,10 +93,10 @@ class Tester:
                 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
                 scores = []
 
-                for train_index, val_index in skf.split(X, T):
+                for train_index, val_index in skf.split(self.X, self.T):
                     if self.model_type == 'cnn':
-                        X_train, X_val = X[train_index], X[val_index]
-                        T_train, T_val = T[train_index], T[val_index]
+                        X_train, X_val = self.X[train_index], self.X[val_index]
+                        T_train, T_val = self.T[train_index], self.T[val_index]
                     else:
                         X_train, X_val = self.X.iloc[train_index], self.X.iloc[val_index]
                         T_train, T_val = self.T.iloc[train_index], self.T.iloc[val_index]
@@ -119,22 +119,20 @@ class Tester:
         model = self.create_model(params)
         return self.eval_model(model)
 
+    @staticmethod
+    def read_config(file_path):
+        """
+        Reads a configuration file and returns its variables as a dictionary.
 
-if __name__ == "__main__":
-    data_type = "."
-    if data_type == "img_feature":
-        dataset = DataReader(image_feature_path="../data/feature_vectors.csv")
-        dataset.drop_feature(["MARITAL STATUS"])
-        X, T = dataset.X, dataset.Y
-    elif data_type == "img":
-        dataset = DataReader(image_dataset_path="../data/COVID_IMG.csv")
-        dataset.drop_feature(["MARITAL STATUS"])
-        X, T = dataset.images, dataset.Y
-    else:
-        dataset = DataReader()
-        dataset.drop_feature(["MARITAL STATUS"])
-        X, T = dataset.X, dataset.Y
+        :param file_path: Path to the config.init file.
+        :return: Dictionary with configuration variables.
+        """
+        config = {}
+        with open(file_path, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line and not line.startswith("#"):  # Ignore empty lines and comments
+                    key, value = map(str.strip, line.split('=', 1))
+                    config[key] = value
+        return config
 
-    tester = Tester(X, T, "dl")
-    tester.print_info()
-    tester.plot()

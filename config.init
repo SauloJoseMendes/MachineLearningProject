@@ -1,0 +1,3 @@
+# Configuration file
+data_type = numeric
+model_type = dt

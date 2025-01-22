@@ -1,14 +1,12 @@
-import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
+from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Dense, Input
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import Sequential
 
 
 class DeepLearning:
-    def __init__(self, input_dim, layer_config, activation, optimizer='adam', epochs=100, batch_size=32, random_state=42):
+    def __init__(self, input_dim, layer_config, activation,
+                 optimizer='adam', epochs=100, batch_size=32, random_state=42):
         """
         Initializes a deep learning model with the provided layer configuration and activation function.
 
